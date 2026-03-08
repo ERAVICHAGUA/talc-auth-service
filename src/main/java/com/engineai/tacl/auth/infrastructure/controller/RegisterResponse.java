@@ -1,16 +1,17 @@
 package com.engineai.tacl.auth.infrastructure.controller;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
-public class RegisterRequest {
+@AllArgsConstructor
+public class RegisterResponse {
 
+    private Long userId;
     private String firstName;
     private String lastName;
     private String username;
     private Integer age;
     private String email;
-    private String password;
+    private String status;
 }

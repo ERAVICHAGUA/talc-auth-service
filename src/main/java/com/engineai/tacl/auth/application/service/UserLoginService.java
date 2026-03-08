@@ -2,10 +2,9 @@ package com.engineai.tacl.auth.application.service;
 
 import com.engineai.tacl.auth.domain.model.User;
 import com.engineai.tacl.auth.domain.repository.UserRepository;
+import com.engineai.tacl.auth.infrastructure.exception.InvalidCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.engineai.tacl.auth.infrastructure.exception.InvalidCredentialsException;
 
 @Service
 public class UserLoginService {
@@ -24,8 +23,7 @@ public class UserLoginService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(InvalidCredentialsException::new);
 
-        boolean passwordMatches =
-                passwordEncoder.matches(rawPassword, user.getPasswordHash());
+        boolean passwordMatches = passwordEncoder.matches(rawPassword, user.getPasswordHash());
 
         if (!passwordMatches) {
             throw new InvalidCredentialsException();

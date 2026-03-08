@@ -1,15 +1,14 @@
 package com.engineai.tacl.auth.infrastructure.controller;
 
-import com.engineai.tacl.auth.application.service.UserRegistrationService;
 import com.engineai.tacl.auth.application.service.UserLoginService;
+import com.engineai.tacl.auth.application.service.UserRegistrationService;
 import com.engineai.tacl.auth.domain.model.User;
+import com.engineai.tacl.auth.domain.model.UserSession;
+import com.engineai.tacl.auth.domain.repository.UserSessionRepository;
 import com.engineai.tacl.auth.infrastructure.security.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.engineai.tacl.auth.domain.model.UserSession;
-import com.engineai.tacl.auth.domain.repository.UserSessionRepository;
 
 import java.time.LocalDateTime;
 
@@ -33,14 +32,28 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
 
         User user = registrationService.register(
+                request.getFirstName(),
+                request.getLastName(),
+                request.getUsername(),
+                request.getAge(),
                 request.getEmail(),
                 request.getPassword()
         );
 
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        RegisterResponse response = new RegisterResponse(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUsername(),
+                user.getAge(),
+                user.getEmail(),
+                user.getStatus()
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
@@ -60,11 +73,19 @@ public class AuthController {
         session.setUserId(user.getId());
         session.setToken(token);
         session.setCreatedAt(LocalDateTime.now());
-        session.setExpiresAt(LocalDateTime.now().plusHours(48)); // o lo que definas
+        session.setExpiresAt(LocalDateTime.now().plusHours(48));
 
         userSessionRepository.save(session);
 
-        return ResponseEntity.ok(new LoginResponse(token));
-    }
+        LoginResponse response = new LoginResponse(
+                token,
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUsername(),
+                user.getEmail()
+        );
 
+        return ResponseEntity.ok(response);
+    }
 }
