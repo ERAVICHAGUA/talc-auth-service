@@ -37,22 +37,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = header.substring(7);
+        String token = header.substring(7).trim();
 
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(jwtService.getSecret().getBytes())
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(jwtService.key())
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
 
             String email = claims.getSubject();
 
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            email,
-                            null,
-                            List.of()
-                    );
+                    new UsernamePasswordAuthenticationToken(email, null, List.of());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
